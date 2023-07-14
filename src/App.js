@@ -5,11 +5,13 @@ import PlaceDetails from './components/PlaceDetails/PlaceDetails'
 import Map from './components/Map/Map'
 
 import {CssBaseline, Grid} from '@material-ui/core'
-import { getPlacesData } from './api'
+import { getPlacesData, getWeatherData } from './api'
 
 function App() {
 
   const [places, setPlaces] = useState([])
+  const [weatherData, setWeatherData] = useState([])
+  
   // {lat:2.44682 , lng:-76.60291}
   const [coordinates, setCoordinates] = useState({})
   const [bounds, setBounds] = useState(null)
@@ -45,23 +47,29 @@ function App() {
 
   useEffect(()=>{
     setIsLoading(true) //empieza fetch
-    if (bounds) {
+    if (bounds?.sw && bounds?.ne) {
+
+      getWeatherData(coordinates.lat, coordinates.lng)
+        .then((data) =>{
+          setWeatherData(data)
+          console.log("🚀 ~ file: App.js:55 ~ .then ~ data:", data)
+        })
       //le paso el type, para que sepa que tipo de datos traer
       getPlacesData(type, bounds?.sw, bounds?.ne)
       .then((data)=>{
-        console.log(data);
-        setPlaces(data)
+        // console.log(data);
+        setPlaces(data?.filter(place => place.name && place.num_reviews > 0))
 
         setFilteredPlaces(false) //cambia lugar, quito filtro
         setIsLoading(false) //termina el fetching de data
       })
     }
-  }, [coordinates, bounds, type]) //al cambiar el lugar, se actualiza
+  }, [bounds, type]) //al cambiar el lugar, se actualiza
   return (
     <div>
       <>
         <CssBaseline/>
-        <Header/>
+        <Header setCoordinates={setCoordinates}/>
 
         {/* sx de grillas para el contenido */}
         <Grid container spacing={3} style={{width: '100%'}}>
@@ -86,6 +94,7 @@ function App() {
               coordinates={coordinates}
               places={filteredPlaces.length ? filteredPlaces : places}
               setChildClicked = {setChildClicked}
+              weatherData = {weatherData}
             />
           </Grid>
         </Grid>
