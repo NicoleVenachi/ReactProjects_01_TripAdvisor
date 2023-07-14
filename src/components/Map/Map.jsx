@@ -11,30 +11,37 @@ import useStyles from './sytles'
 
 
 
-function Map() {
+function Map({ setCoordinates, setBounds, coordinates }) {
 
   const classes = useStyles()
 
   //hook media query, será false si el query es menor que esto
   const isMobile = useMediaQuery('(min-width: 600px)')
 
-  const coordinates = { lat: 0, lng: 0 }
-
   return (
-    <div className='classes.mapContainer'>
+    <div className={classes.mapContainer}>
       <GoogleMapReact
         // key de ggogle map
-        bootstrapURLKeys={{ key: '' }}
+        bootstrapURLKeys={{ key:  }}
         defaultCenter={coordinates}
         center={coordinates}
         defaultZoom={14}
 
         margin={[50, 50, 50, 50]}
 
-      // options={''}
+        // options={''}
 
-      // onChange={''}
-      // onChildClick={''}
+        onChange={(event) => {
+          setCoordinates({
+            lat: event.center.lat,
+            lng: event.center.lng,
+          })
+          setBounds({
+            ne: event.marginBounds.ne,
+            sw: event.marginBounds.sw,
+          })
+        }} //cambia el mapa
+      // onChildClick={''} //click a algun restura en mapa
       >
 
       </GoogleMapReact>
